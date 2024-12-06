@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Ujian Online</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #container, #quiz-container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: none; /* Semua elemen tersembunyi secara default */
+        }
+        #container.active, #quiz-container.active {
+            display: block; /* Elemen yang aktif akan ditampilkan */
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            color: #333;
+        }
+        input, select, button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .cancel {
+            background: #dc3545;
+        }
+        .cancel:hover {
+            background: #b02a37;
+        }
+        #quiz-container iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+        #error-msg {
+            color: red;
+            font-size: 0.9em;
+            margin-top: -10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container" class="active">
+    <h1>Login Peserta</h1>
+    <input type="text" id="username" placeholder="Masukkan Username">
+    <input type="password" id="password" placeholder="Masukkan Password">
+    <select id="kelas">
+        <option value="">Pilih Kelas</option>
+        <option value="10">Kelas 10</option>
+        <option value="11">Kelas 11</option>
+        <option value="12">Kelas 12</option>
+    </select>
+    <button onclick="login()">Masuk</button>
+    <p id="error-msg" style="display: none;"></p>
+</div>
+
+<div id="quiz-container">
+    <iframe id="quiz-frame"></iframe>
+    <button class="cancel" onclick="cancelQuiz()">Kembali ke Login</button>
+</div>
+
+<script>
+    const VALID_PASSWORD = "*112233#";
+    const googleForms = {
+        "10": "https://forms.gle/H6244RPUJLipJU8t5",
+        "11": "https://forms.gle/tkqoTe8WRDwmfR237",
+        "12": "https://forms.gle/DB69tXSghH7uMs2c7"
+    };
+
+    // Memaksa layar penuh
+    function requestFullscreen() {
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+            document.documentElement.mozRequestFullScreen();
+        } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+            document.documentElement.webkitRequestFullscreen();
+        } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+            document.documentElement.msRequestFullscreen();
+        }
+    }
+
+    // Cegah pengguna membuka tab baru
+    function preventTabChange(e) {
+        e.preventDefault();
+        e.returnValue = 'Are you sure you want to leave?';
+    }
+
+    window.onbeforeunload = preventTabChange;
+
+    function login() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+        const kelas = document.getElementById("kelas").value;
+        const errorMsg = document.getElementById("error-msg");
+
+        // Reset pesan error
+        errorMsg.style.display = "none";
+
+        // Validasi form login
+        if (!username || !password || !kelas) {
+            errorMsg.textContent = "Harap isi semua field!";
+            errorMsg.style.display = "block";
+        } else if (password !== VALID_PASSWORD) {
+            errorMsg.textContent = "Password salah!";
+            errorMsg.style.display = "block";
+        } else {
+            // Login berhasil, tampilkan soal
+            document.getElementById("container").classList.remove("active");
+            document.getElementById("quiz-container").classList.add("active");
+            document.getElementById("quiz-frame").src = googleForms[kelas];
+
+            // Aktifkan layar penuh
+            requestFullscreen();
+        }
+    }
+
+    function cancelQuiz() {
+        // Reset form dan kembali ke login
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("kelas").value = "";
+        document.getElementById("error-msg").style.display = "none";
+        document.getElementById("quiz-frame").src = ""; // Kosongkan src iframe
+
+        // Tampilkan halaman login
+        document.getElementById("container").classList.add("active");
+        document.getElementById("quiz-container").classList.remove("active");
+    }
+</script>
+
+</body>
+</html>
